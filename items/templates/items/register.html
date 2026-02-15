@@ -1,0 +1,36 @@
+{% extends 'items/base.html' %}
+
+{% block title %}Sign Up — Campus L&F{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow border-0">
+            <div class="card-body p-4">
+                <h2 class="text-center fw-bold mb-4">
+                    Create Account
+                </h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="invalid-feedback d-block">{{ field.errors.0 }}</div>
+                        {% endif %}
+
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-medium">
+                        Sign Up
+                    </button>
+                </form>
+                <p class="text-center mt-3 mb-0 text-muted">
+                    Already have an account? <a href="{% url 'login' %}">Login here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'items/base.html' %}
+
+{% block title %}Campus Lost & Found — Home{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-section text-center py-5 mb-5">
+    <div class="hero-content">
+        <h1 class="display-4 fw-bold mb-3">
+            Campus Lost & Found
+        </h1>
+        <p class="lead text-muted mb-4">
+            Lost something on campus? Found an item? Post it here and help reunite items with their owners.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'post_item' %}" class="btn btn-primary btn-lg px-4">
+                Report an Item
+            </a>
+            <a href="{% url 'item_list' %}" class="btn btn-outline-primary btn-lg px-4">
+                Browse Items
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Row -->
+<section class="row text-center mb-5">
+    <div class="col-md-4 mb-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                
+                <h3 class="fw-bold mt-2" id="lost-count">{{ lost_count }}</h3>
+                <p class="text-muted">Items Reported Lost</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                
+                <h3 class="fw-bold mt-2" id="found-count">{{ found_count }}</h3>
+                <p class="text-muted">Items Found</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                
+                <h3 class="fw-bold mt-2" id="resolved-count">{{ resolved_count }}</h3>
+                <p class="text-muted">Items Reunited</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Items -->
+<section>
+    <h2 class="fw-bold mb-4">Recent Listings</h2>
+
+    {% if recent_items %}
+    <div class="row">
+        {% for item in recent_items %}
+        <div class="col-md-4 mb-4">
+            <div class="card item-card h-100 shadow-sm border-0">
+                {% if item.image %}
+                <img src="{{ item.image.url }}" class="card-img-top item-card-img" alt="{{ item.title }}">
+                {% else %}
+                <div class="card-img-top item-card-img d-flex align-items-center justify-content-center bg-light">
+                    
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge {% if item.item_type == 'lost' %}bg-danger{% else %}bg-success{% endif %}">
+                            {{ item.get_item_type_display }}
+                        </span>
+                        <span class="badge bg-secondary">{{ item.get_category_display }}</span>
+                    </div>
+                    <h5 class="card-title fw-bold">{{ item.title }}</h5>
+                    <p class="card-text text-muted small flex-grow-1">{{ item.description|truncatechars:80 }}</p>
+                    <div class="mt-auto">
+                        <p class="small text-muted mb-2">
+                            {{ item.location }} &bull;
+                            {{ item.date_item|date:"M d, Y" }}
+                        </p>
+                        <a href="{% url 'item_detail' item.id %}" class="btn btn-outline-primary btn-sm w-100">View
+                            Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'item_list' %}" class="btn btn-primary">View All Items </a>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5">
+        
+        <p class="text-muted mt-3">No items posted yet. Be the first to report!</p>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

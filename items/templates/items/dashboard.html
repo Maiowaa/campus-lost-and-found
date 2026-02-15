@@ -1,0 +1,176 @@
+{% extends 'items/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Dashboard</h2>
+
+<ul class="nav nav-tabs mb-4" role="tablist">
+<li class="nav-item">
+<button class="nav-link active" data-bs-toggle="tab" data-bs-target="#my-items" type="button">
+My Posts <span class="badge bg-primary ms-1">{{ my_items|length }}</span>
+</button>
+</li>
+<li class="nav-item">
+<button class="nav-link" data-bs-toggle="tab" data-bs-target="#my-claims" type="button">
+My Claims <span class="badge bg-primary ms-1">{{ my_claims|length }}</span>
+</button>
+</li>
+<li class="nav-item">
+<button class="nav-link" data-bs-toggle="tab" data-bs-target="#incoming-claims" type="button">
+Incoming Claims <span class="badge bg-primary ms-1">{{ incoming_claims|length }}</span>
+</button>
+</li>
+</ul>
+
+<div class="tab-content">
+<!-- My Posts Tab -->
+<div class="tab-pane fade show active" id="my-items">
+{% if my_items %}
+<div class="table-responsive">
+<table class="table table-hover align-middle">
+<thead class="table-light">
+<tr>
+<th>Title</th>
+<th>Type</th>
+<th>Category</th>
+<th>Status</th>
+<th>Date Posted</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for item in my_items %}
+<tr>
+<td>
+<a href="{% url 'item_detail' item.id %}" class="text-decoration-none fw-medium">{{ item.title }}</a>
+</td>
+<td>
+{% if item.item_type == 'lost' %}
+<span class="badge bg-danger">Lost</span>
+{% else %}
+<span class="badge bg-success">Found</span>
+{% endif %}
+</td>
+<td>{{ item.get_category_display }}</td>
+<td>
+{% if item.status == 'open' %}
+<span class="badge bg-info">Open</span>
+{% elif item.status == 'claimed' %}
+<span class="badge bg-warning">Claimed</span>
+{% else %}
+<span class="badge bg-success">Resolved</span>
+{% endif %}
+</td>
+<td>{{ item.date_reported|date:"M d, Y" }}</td>
+<td>
+<form method="post" action="{% url 'delete_item' item.id %}" class="d-inline" onsubmit="return confirm('Delete this item?');">
+{% csrf_token %}
+<button class="btn btn-outline-danger btn-sm">Delete</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% else %}
+<div class="text-center py-4 text-muted">
+<p class="mt-2">You haven't posted any items yet.</p>
+<a href="{% url 'post_item' %}" class="btn btn-primary">Report an Item</a>
+</div>
+{% endif %}
+</div>
+
+<!-- My Claims Tab -->
+<div class="tab-pane fade" id="my-claims">
+{% if my_claims %}
+<div class="table-responsive">
+<table class="table table-hover align-middle">
+<thead class="table-light">
+<tr>
+<th>Item</th>
+<th>Your Message</th>
+<th>Status</th>
+<th>Date Claimed</th>
+</tr>
+</thead>
+<tbody>
+{% for claim in my_claims %}
+<tr>
+<td>
+<a href="{% url 'item_detail' claim.item.id %}" class="text-decoration-none fw-medium">{{ claim.item.title }}</a>
+</td>
+<td class="text-muted small">{{ claim.message|truncatechars:50 }}</td>
+<td>
+{% if claim.is_approved %}
+<span class="badge bg-success">Approved</span>
+{% else %}
+<span class="badge bg-warning">Pending</span>
+{% endif %}
+</td>
+<td>{{ claim.date_claimed|date:"M d, Y" }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% else %}
+<div class="text-center py-4 text-muted">
+<p class="mt-2">You haven't claimed any items yet.</p>
+</div>
+{% endif %}
+</div>
+
+<!-- Incoming Claims Tab -->
+<div class="tab-pane fade" id="incoming-claims">
+{% if incoming_claims %}
+<div class="table-responsive">
+<table class="table table-hover align-middle">
+<thead class="table-light">
+<tr>
+<th>Your Item</th>
+<th>Claimed By</th>
+<th>Message</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+{% for claim in incoming_claims %}
+<tr>
+<td>
+<a href="{% url 'item_detail' claim.item.id %}" class="text-decoration-none fw-medium">{{ claim.item.title }}</a>
+</td>
+<td>{{ claim.claimed_by.username }}</td>
+<td class="text-muted small">{{ claim.message|truncatechars:50 }}</td>
+<td>
+{% if claim.is_approved %}
+<span class="badge bg-success">Approved</span>
+{% else %}
+<span class="badge bg-warning">Pending</span>
+{% endif %}
+</td>
+<td>
+{% if not claim.is_approved %}
+<form method="post" action="{% url 'approve_claim' claim.id %}">
+{% csrf_token %}
+<button class="btn btn-success btn-sm">Approve</button>
+</form>
+{% else %}
+<span class="text-success small">Done</span>
+{% endif %}
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% else %}
+<div class="text-center py-4 text-muted">
+<p class="mt-2">No claims on your items yet.</p>
+</div>
+{% endif %}
+</div>
+</div>
+{% endblock %}
