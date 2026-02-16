@@ -58,3 +58,17 @@ class Claim(models.Model):
 
     def __str__(self):
         return f"Claim by {self.claimed_by.username} on {self.item.title}"
+
+
+class Comment(models.Model):
+    """Discussion/comments on lost or found items."""
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Comment by {self.author.username} on {self.item.title}"

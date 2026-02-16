@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Item, Claim, CATEGORY_CHOICES, ITEM_TYPE_CHOICES
+from .models import Item, Claim, Comment, CATEGORY_CHOICES, ITEM_TYPE_CHOICES
 
 
 class RegisterForm(UserCreationForm):
@@ -69,6 +69,20 @@ class ClaimForm(forms.ModelForm):
                 'class': 'form-control',
                 'rows': 3,
                 'placeholder': 'Describe why you believe this item is yours...',
+            }),
+        }
+
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Add a comment or start a discussion...',
             }),
         }
 

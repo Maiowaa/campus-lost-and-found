@@ -2,143 +2,188 @@
 {% block title %}{{ item.title }}{% endblock %}
 {% block content %}
 <div class="row">
-<div class="col-md-8">
-<div class="card shadow-sm border-0 mb-4">
-{% if item.image %}
-<img src="{{ item.image.url }}" class="card-img-top detail-img" alt="{{ item.title }}">
-{% endif %}
-<div class="card-body p-4">
-<div class="d-flex flex-wrap gap-1 mb-3">
-{% if item.item_type == 'lost' %}
-<span class="badge bg-danger fs-6">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 mb-4">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" class="card-img-top detail-img" alt="{{ item.title }}">
+            {% endif %}
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap gap-1 mb-3">
+                    {% if item.item_type == 'lost' %}
+                    <span class="badge bg-danger fs-6">
 
-{{ item.get_item_type_display }}
-</span>
-{% else %}
-<span class="badge bg-success fs-6">
+                        {{ item.get_item_type_display }}
+                    </span>
+                    {% else %}
+                    <span class="badge bg-success fs-6">
 
-{{ item.get_item_type_display }}
-</span>
-{% endif %}
-<span class="badge bg-secondary">
-{{ item.get_category_display }}
-</span>
-{% if item.status == 'open' %}
-<span class="badge bg-info">
-{{ item.get_status_display }}
-</span>
-{% elif item.status == 'claimed' %}
-<span class="badge bg-warning">
-{{ item.get_status_display }}
-</span>
-{% else %}
-<span class="badge bg-success">
-{{ item.get_status_display }}
-</span>
-{% endif %}
-</div>
-<h2 class="fw-bold">{{ item.title }}</h2>
-<p class="text-muted mt-3">{{ item.description }}</p>
-<hr>
-<div class="row text-muted small">
-<div class="col-sm-6 mb-2">
+                        {{ item.get_item_type_display }}
+                    </span>
+                    {% endif %}
+                    <span class="badge bg-secondary">
+                        {{ item.get_category_display }}
+                    </span>
+                    {% if item.status == 'open' %}
+                    <span class="badge bg-info">
+                        {{ item.get_status_display }}
+                    </span>
+                    {% elif item.status == 'claimed' %}
+                    <span class="badge bg-warning">
+                        {{ item.get_status_display }}
+                    </span>
+                    {% else %}
+                    <span class="badge bg-success">
+                        {{ item.get_status_display }}
+                    </span>
+                    {% endif %}
+                </div>
+                <h2 class="fw-bold">{{ item.title }}</h2>
+                <p class="text-muted mt-3">{{ item.description }}</p>
+                <hr>
+                <div class="row text-muted small">
+                    <div class="col-sm-6 mb-2">
 
-<strong>Location:</strong> {{ item.location }}
-</div>
-<div class="col-sm-6 mb-2">
+                        <strong>Location:</strong> {{ item.location }}
+                    </div>
+                    <div class="col-sm-6 mb-2">
 
-<strong>Date:</strong> {{ item.date_item }}
-</div>
-<div class="col-sm-6 mb-2">
+                        <strong>Date:</strong> {{ item.date_item }}
+                    </div>
+                    <div class="col-sm-6 mb-2">
 
-<strong>Posted by:</strong> {{ item.posted_by }}
-</div>
-<div class="col-sm-6 mb-2">
+                        <strong>Posted by:</strong> {{ item.posted_by }}
+                    </div>
+                    <div class="col-sm-6 mb-2">
 
-<strong>Reported:</strong> {{ item.date_reported }}
-</div>
-</div>
-{% if user == item.posted_by %}
-<hr>
-<form method="post" action="{% url 'delete_item' item.id %}" class="d-inline" onsubmit="return confirm('Delete this item?');">
-{% csrf_token %}
-<button class="btn btn-outline-danger btn-sm">
-Delete Item
-</button>
-</form>
-{% endif %}
-</div>
-</div>
-</div>
-<div class="col-md-4">
-{% if user.is_authenticated and user != item.posted_by and not user_has_claimed and item.status == 'open' %}
-<div class="card shadow-sm border-0 mb-4">
-<div class="card-body p-4">
-<h5 class="fw-bold mb-3">
-Claim this Item
-</h5>
-<form method="post" action="{% url 'claim_item' item.id %}">
-{% csrf_token %}
-<div class="mb-3">
-<label for="id_message" class="form-label">Your Message</label>
-<textarea name="message" id="id_message" class="form-control" rows="3" placeholder="Describe why this is yours..." required></textarea>
-</div>
-<button type="submit" class="btn btn-primary w-100">
-Submit Claim
-</button>
-</form>
-</div>
-</div>
-{% elif user_has_claimed %}
-<div class="alert alert-info">
-You already submitted a claim.
-</div>
-{% elif not user.is_authenticated %}
-<div class="card shadow-sm border-0 mb-4">
-<div class="card-body text-center p-4">
-<p class="text-muted">Login to claim this item</p>
-<a href="{% url 'login' %}?next={% url 'item_detail' item.id %}" class="btn btn-primary">
-Login
-</a>
-</div>
-</div>
-{% endif %}
-{% if user == item.posted_by and claims %}
-<div class="card shadow-sm border-0">
-<div class="card-body p-4">
-<h5 class="fw-bold mb-3">
-Claims ({{ claims|length }})
-</h5>
-{% for claim in claims %}
-<div class="border rounded p-3 mb-3 {% if claim.is_approved %}bg-success bg-opacity-10{% endif %}">
-<div class="d-flex justify-content-between align-items-center mb-2">
-<strong>{{ claim.claimed_by }}</strong>
-{% if claim.is_approved %}
-<span class="badge bg-success">
-Approved
-</span>
-{% else %}
-<span class="badge bg-warning">Pending</span>
-{% endif %}
-</div>
-<p class="small text-muted mb-2">{{ claim.message }}</p>
-<small class="text-muted">{{ claim.date_claimed }}</small>
-{% if not claim.is_approved %}
-<form method="post" action="{% url 'approve_claim' claim.id %}" class="mt-2">
-{% csrf_token %}
-<button class="btn btn-success btn-sm w-100">
-Approve
-</button>
-</form>
-{% endif %}
-</div>
-{% endfor %}
-</div>
-</div>
-{% endif %}
-</div>
+                        <strong>Reported:</strong> {{ item.date_reported }}
+                    </div>
+                </div>
+                {% if user == item.posted_by %}
+                <hr>
+                <form method="post" action="{% url 'delete_item' item.id %}" class="d-inline"
+                    onsubmit="return confirm('Delete this item?');">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-danger btn-sm">
+                        Delete Item
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+
+        <!-- Action Card: Claim (Only for Found items) -->
+        {% if item.item_type == 'found' %}
+        {% if user.is_authenticated and user != item.posted_by and not user_has_claimed and item.status == 'open' %}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Claim this Item</h5>
+                <form method="post" action="{% url 'claim_item' item.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_message" class="form-label">Your Message</label>
+                        <textarea name="message" id="id_message" class="form-control" rows="3"
+                            placeholder="Describe why this is yours..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit Claim</button>
+                </form>
+            </div>
+        </div>
+        {% elif user_has_claimed %}
+        <div class="alert alert-info mb-4">You already submitted a claim.</div>
+        {% elif not user.is_authenticated %}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body text-center p-4">
+                <p class="text-muted">Login to claim this item</p>
+                <a href="{% url 'login' %}?next={% url 'item_detail' item.id %}" class="btn btn-primary">Login</a>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- Discussion / Comments Section (For all items) -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                <h5 class="fw-bold mb-0">Discussion</h5>
+            </div>
+            <div class="card-body p-4 pt-0">
+                <!-- List Comments -->
+                <div class="mb-4" style="max-height: 300px; overflow-y: auto;">
+                    {% if comments %}
+                    {% for comment in comments %}
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
+                                <span class="fw-bold text-secondary">{{ comment.author.username|slice:":1"|upper
+                                    }}</span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 fw-bold">{{ comment.author.username }} <small
+                                    class="text-muted fw-normal ms-2">{{ comment.created_at|date:"M d, H:i" }}</small>
+                            </h6>
+                            <p class="mb-0 small text-secondary">{{ comment.content }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted small text-center my-3">No comments yet. Start the discussion!</p>
+                    {% endif %}
+                </div>
+
+                <!-- Add Comment Form -->
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'add_comment' item.id %}">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        {{ comment_form.content }}
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-outline-primary w-100">Post Comment</button>
+                </form>
+                {% else %}
+                <p class="text-center small mb-0"><a
+                        href="{% url 'login' %}?next={% url 'item_detail' item.id %}">Login</a> to comment</p>
+                {% endif %}
+            </div>
+        </div>
+        {% if user == item.posted_by and claims %}
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">
+                    Claims ({{ claims|length }})
+                </h5>
+                {% for claim in claims %}
+                <div class="border rounded p-3 mb-3 {% if claim.is_approved %}bg-success bg-opacity-10{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>{{ claim.claimed_by }}</strong>
+                        {% if claim.is_approved %}
+                        <span class="badge bg-success">
+                            Approved
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning">Pending</span>
+                        {% endif %}
+                    </div>
+                    <p class="small text-muted mb-2">{{ claim.message }}</p>
+                    <small class="text-muted">{{ claim.date_claimed }}</small>
+                    {% if not claim.is_approved %}
+                    <form method="post" action="{% url 'approve_claim' claim.id %}" class="mt-2">
+                        {% csrf_token %}
+                        <button class="btn btn-success btn-sm w-100">
+                            Approve
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
 </div>
 <a href="{% url 'item_list' %}" class="btn btn-outline-secondary mt-3">
-Back to Items
+    Back to Items
 </a>
 {% endblock %}

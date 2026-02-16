@@ -3,8 +3,9 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from .models import Item, Claim
-from .forms import RegisterForm, ItemForm, ClaimForm, SearchForm
+from django.db.models import Q
+from .models import Item, Claim, Comment
+from .forms import RegisterForm, ItemForm, ClaimForm, SearchForm, CommentForm
 
 
 def home(request):
@@ -75,7 +76,9 @@ def item_detail(request, item_id):
     """Show full details of an item with claim form."""
     item = get_object_or_404(Item, id=item_id)
     claims = item.claims.all()
+    comments = item.comments.all()  # Fetch all comments
     claim_form = ClaimForm()
+    comment_form = CommentForm()
 
     # Check if current user already claimed this item
     user_has_claimed = False
@@ -87,6 +90,8 @@ def item_detail(request, item_id):
         'claims': claims,
         'claim_form': claim_form,
         'user_has_claimed': user_has_claimed,
+        'comments': comments,
+        'comment_form': comment_form,
     })
 
 
@@ -183,3 +188,22 @@ def delete_item(request, item_id):
         item.delete()
         messages.success(request, 'Item deleted successfully.')
     return redirect('dashboard')
+
+
+@login_required
+def add_comment(request, item_id):
+    """Add a comment/discussion post to an item."""
+    item = get_object_or_404(Item, id=item_id)
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.item = item
+            comment.author = request.user
+            comment.save()
+            messages.success(request, 'Comment added successfully!')
+    else:
+        messages.error(request, 'Invalid request.')
+        
+    return redirect('item_detail', item_id=item_id)

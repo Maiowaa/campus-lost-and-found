@@ -11,13 +11,9 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.environ.get(
-    'ALLOWED_HOSTS', '*'
-).split(',')
+ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '*').split(',') if h]
 
-CSRF_TRUSTED_ORIGINS = os.environ.get(
-    'CSRF_TRUSTED_ORIGINS', ''
-).split(',')
+CSRF_TRUSTED_ORIGINS = [url for url in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if url]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
