@@ -34,12 +34,25 @@ INSTALLED_APPS = [
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '').strip().strip('"').strip("'")
 
 if CLOUDINARY_URL.startswith('cloudinary://'):
-    print("✅ Cloudinary URL found! Configuring Cloudinary storage...")
-    INSTALLED_APPS.insert(-1, 'cloudinary_storage')  # before 'items'
-    INSTALLED_APPS.insert(-1, 'cloudinary')           # before 'items'
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    print("✅ Cloudinary URL found! Configuring STORAGES with Cloudinary...")
+    INSTALLED_APPS.insert(-1, 'cloudinary_storage')
+    INSTALLED_APPS.insert(-1, 'cloudinary')
+    
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 else:
-    print(f"⚠️ Cloudinary URL NOT found or invalid. Value starts with: '{CLOUDINARY_URL[:15]}...'")
+    print(f"⚠️ Cloudinary URL NOT found (starts with: '{CLOUDINARY_URL[:10]}...'). using local storage.")
+    # Fallback to legacy settings for local dev
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Default file storage is local filesystem by default
+
+# Auth redirects
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -94,7 +107,7 @@ USE_TZ = True
 # Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # Media files (uploaded images)
 MEDIA_URL = '/media/'
