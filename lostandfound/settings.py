@@ -30,11 +30,16 @@ INSTALLED_APPS = [
 ]
 
 # Cloudinary for media storage in production
-CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '')
+# Cloudinary for media storage in production
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '').strip().strip('"').strip("'")
+
 if CLOUDINARY_URL.startswith('cloudinary://'):
+    print("✅ Cloudinary URL found! Configuring Cloudinary storage...")
     INSTALLED_APPS.insert(-1, 'cloudinary_storage')  # before 'items'
     INSTALLED_APPS.insert(-1, 'cloudinary')           # before 'items'
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+else:
+    print(f"⚠️ Cloudinary URL NOT found or invalid. Value starts with: '{CLOUDINARY_URL[:15]}...'")
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
