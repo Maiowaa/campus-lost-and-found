@@ -3,6 +3,13 @@
 {% block title %}Campus Lost & Found — Home{% endblock %}
 
 {% block content %}
+<div class="alert alert-info">
+    <strong>Cloudinary Debug:</strong><br>
+    Exists: {{ c_debug.exists }}<br>
+    Starts with 'cloudinary://': {{ c_debug.starts_with_cloudinary }}<br>
+    First 20 chars: "{{ c_debug.raw_start }}"<br>
+    Length: {{ c_debug.length }}
+</div>
 
 <!-- Hero Section -->
 <section class="hero-section text-center py-5 mb-5">
@@ -29,7 +36,7 @@
     <div class="col-md-4 mb-3">
         <div class="card stat-card border-0 shadow-sm h-100">
             <div class="card-body">
-                
+
                 <h3 class="fw-bold mt-2" id="lost-count">{{ lost_count }}</h3>
                 <p class="text-muted">Items Reported Lost</p>
             </div>
@@ -38,7 +45,7 @@
     <div class="col-md-4 mb-3">
         <div class="card stat-card border-0 shadow-sm h-100">
             <div class="card-body">
-                
+
                 <h3 class="fw-bold mt-2" id="found-count">{{ found_count }}</h3>
                 <p class="text-muted">Items Found</p>
             </div>
@@ -47,7 +54,7 @@
     <div class="col-md-4 mb-3">
         <div class="card stat-card border-0 shadow-sm h-100">
             <div class="card-body">
-                
+
                 <h3 class="fw-bold mt-2" id="resolved-count">{{ resolved_count }}</h3>
                 <p class="text-muted">Items Reunited</p>
             </div>
@@ -68,7 +75,7 @@
                 <img src="{{ item.image.url }}" class="card-img-top item-card-img" alt="{{ item.title }}">
                 {% else %}
                 <div class="card-img-top item-card-img d-flex align-items-center justify-content-center bg-light">
-                    
+
                 </div>
                 {% endif %}
                 <div class="card-body d-flex flex-column">
@@ -100,7 +107,7 @@
 
     {% else %}
     <div class="text-center py-5">
-        
+
         <p class="text-muted mt-3">No items posted yet. Be the first to report!</p>
     </div>
     {% endif %}
