@@ -26,10 +26,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary_storage',
-    'cloudinary',
     'items',
 ]
+
+# Cloudinary for media storage in production
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+if CLOUDINARY_URL:
+    INSTALLED_APPS.insert(-1, 'cloudinary_storage')  # before 'items'
+    INSTALLED_APPS.insert(-1, 'cloudinary')           # before 'items'
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -90,10 +95,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Use Cloudinary for media storage in production
-CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
-if CLOUDINARY_URL:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Auth redirects
 LOGIN_URL = '/login/'
