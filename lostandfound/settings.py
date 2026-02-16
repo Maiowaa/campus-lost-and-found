@@ -30,8 +30,8 @@ INSTALLED_APPS = [
 ]
 
 # Cloudinary for media storage in production
-CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
-if CLOUDINARY_URL:
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '')
+if CLOUDINARY_URL.startswith('cloudinary://'):
     INSTALLED_APPS.insert(-1, 'cloudinary_storage')  # before 'items'
     INSTALLED_APPS.insert(-1, 'cloudinary')           # before 'items'
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
