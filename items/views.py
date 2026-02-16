@@ -13,22 +13,11 @@ def home(request):
     lost_count = Item.objects.filter(item_type='lost').count()
     found_count = Item.objects.filter(item_type='found').count()
     resolved_count = Item.objects.filter(status='resolved').count()
-    # DEBUG: Check Cloudinary env var
-    import os
-    c_url = os.environ.get('CLOUDINARY_URL', '')
-    c_debug = {
-        'exists': bool(c_url),
-        'starts_with_cloudinary': c_url.startswith('cloudinary://'),
-        'raw_start': c_url[:20] if c_url else 'None',
-        'length': len(c_url)
-    }
-
     return render(request, 'items/home.html', {
         'recent_items': recent_items,
         'lost_count': lost_count,
         'found_count': found_count,
         'resolved_count': resolved_count,
-        'c_debug': c_debug,
     })
 
 
