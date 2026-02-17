@@ -145,16 +145,12 @@
                     {% for comment in comments %}
                     <div class="d-flex mb-3">
                         <div class="flex-shrink-0">
-                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                style="width: 40px; height: 40px;">
-                                <span class="fw-bold text-secondary">{{ comment.author.username|slice:":1"|upper
-                                    }}</span>
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <span class="fw-bold text-secondary">{{ comment.author.username|slice:":1"|upper }}</span>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 fw-bold">{{ comment.author.username }} <small
-                                    class="text-muted fw-normal ms-2">{{ comment.created_at|date:"M d, H:i" }}</small>
-                            </h6>
+                            <h6 class="mb-0 fw-bold">{{ comment.author.username }} <small class="text-muted fw-normal ms-2">{{ comment.created_at|date:"M d, H:i" }}</small></h6>
                             <p class="mb-0 small text-secondary">{{ comment.content }}</p>
                         </div>
                     </div>
