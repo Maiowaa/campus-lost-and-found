@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.mail import send_mail
+from django.conf import settings
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -169,10 +171,55 @@ def approve_claim(request, claim_id):
     if request.method == 'POST':
         claim.is_approved = True
         claim.save()
-        claim.item.status = 'resolved'
+        claim.item.status = 'claimed'  # Stage 1: Item is claimed, pending handover
         claim.item.save()
-        messages.success(request, f'Claim by {claim.claimed_by.username} approved!')
+        
+        # Email Notification
+        subject = f"Claim Approved: {claim.item.title}"
+        message = f"Your claim for '{claim.item.title}' has been approved! Please coordinate with the finder to retrieve your item."
+        try:
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [claim.claimed_by.email])
+        except Exception as e:
+            print(f"Email failed: {e}")
+            
+        messages.success(request, f'Claim approved! Waiting for {claim.claimed_by.username} to confirm receipt.')
     return redirect('dashboard')
+
+
+@login_required
+def confirm_receipt(request, item_id):
+    """Stage 2: Claimer confirms they received the item -> Resolved."""
+    item = get_object_or_404(Item, id=item_id)
+    # Find the approved claim
+    claim = item.claims.filter(is_approved=True).first()
+    
+    if not claim or request.user != claim.claimed_by:
+        messages.error(request, 'You are not authorized to confirm receipt of this item.')
+        return redirect('item_detail', item_id=item.id)
+        
+    if request.method == 'POST':
+        item.status = 'resolved'
+        item.save()
+        messages.success(request, 'Item receipt confirmed! Case closed.')
+        
+    return redirect('item_detail', item_id=item.id)
+
+
+@login_required
+def mark_resolved(request, item_id):
+    """For Lost items: Poster marks as found/resolved manually."""
+    item = get_object_or_404(Item, id=item_id)
+    
+    if request.user != item.posted_by:
+        messages.error(request, 'Unauthorized action.')
+        return redirect('item_detail', item_id=item.id)
+        
+    if request.method == 'POST':
+        item.status = 'resolved'
+        item.save()
+        messages.success(request, 'Item marked as resolved!')
+        
+    return redirect('item_detail', item_id=item.id)
 
 
 @login_required
@@ -202,6 +249,16 @@ def add_comment(request, item_id):
             comment.item = item
             comment.author = request.user
             comment.save()
+
+            # Email Notification to Poster
+            if item.posted_by.email and item.posted_by != request.user:
+                subject = f"New Comment on: {item.title}"
+                message = f"User {request.user.username} commented: {comment.content[:50]}..."
+                try:
+                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [item.posted_by.email])
+                except Exception as e:
+                    print(f"Email failed: {e}")
+
             messages.success(request, 'Comment added successfully!')
     else:
         messages.error(request, 'Invalid request.')

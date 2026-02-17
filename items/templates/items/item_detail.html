@@ -73,6 +73,37 @@
     </div>
     <div class="col-md-4">
 
+        <!-- Actions for Poster (Lost Item) -->
+        {% if user == item.posted_by and item.item_type == 'lost' and item.status != 'resolved' %}
+        <div class="card shadow-sm border-0 mb-4 bg-success bg-opacity-10">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Item Found?</h5>
+                <p class="small">If you have retrieved this item, please mark it as resolved.</p>
+                <form method="post" action="{% url 'mark_resolved' item.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success w-100">Mark as Resolved</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions for Claimer (Found Item - Stage 2) -->
+        {% for claim in claims %}
+        {% if claim.is_approved and claim.claimed_by == user and item.status == 'claimed' %}
+        <div class="card shadow-sm border-0 mb-4 bg-warning bg-opacity-10">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Confirm Receipt</h5>
+                <p class="small">The finder has approved your claim. Please confirm when you have physically received
+                    the item.</p>
+                <form method="post" action="{% url 'confirm_receipt' item.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning w-100">I have received this item</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
         <!-- Action Card: Claim (Only for Found items) -->
         {% if item.item_type == 'found' %}
         {% if user.is_authenticated and user != item.posted_by and not user_has_claimed and item.status == 'open' %}
