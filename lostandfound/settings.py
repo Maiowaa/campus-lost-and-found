@@ -11,7 +11,8 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '*').split(',') if h]
+
+ALLOWED_HOSTS = ['*'] if os.environ.get('VERCEL') else [h for h in os.environ.get('ALLOWED_HOSTS', '*').split(',') if h]
 
 CSRF_TRUSTED_ORIGINS = [url for url in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if url]
 
